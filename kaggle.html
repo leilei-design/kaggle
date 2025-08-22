@@ -3,535 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaggle镜像访问 - 优化解决方案</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>简易计算器</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-        }
-        
-        :root {
-            --primary: #20beff;
-            --primary-dark: #1899d6;
-            --secondary: #6c5ce7;
-            --accent: #fdbb2d;
-            --light: #f8f9fa;
-            --dark: #343a40;
-            --success: #28a745;
-            --danger: #dc3545;
-            --gray: #6c757d;
-            --border-radius: 12px;
-            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
+            font-family: 'Arial', sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #1a2a6c 0%, #2b5876 50%, #4e4376 100%);
-            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
         }
         
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .logo-icon {
-            width: 60px;
-            height: 60px;
-            background: var(--primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: white;
-            box-shadow: var(--box-shadow);
-        }
-        
-        h1 {
-            font-size: 2.8rem;
-            font-weight: 800;
-            background: linear-gradient(to right, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.2rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        .card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: var(--border-radius);
+        .calculator {
+            width: 320px;
+            background-color: #22252d;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             overflow: hidden;
-            box-shadow: var(--box-shadow);
-            margin-bottom: 30px;
-            transition: var(--transition);
         }
         
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-        }
-        
-        .card-header {
-            background: var(--primary);
-            color: white;
+        .display {
             padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .card-body {
-            padding: 25px;
-        }
-        
-        .url-input-container {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .url-input {
-            flex: 1;
-            min-width: 300px;
-            position: relative;
-        }
-        
-        .url-input input {
-            width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: var(--border-radius);
-            font-size: 16px;
-            transition: var(--transition);
-            padding-left: 45px;
-        }
-        
-        .url-input input:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(32, 190, 255, 0.2);
-        }
-        
-        .url-input i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
+            text-align: right;
+            height: 100px;
+            color: white;
+            font-size: 2rem;
+            font-weight: 300;
+            background-color: #2a2d37;
+            overflow: hidden;
+            white-space: nowrap;
         }
         
         .buttons {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 16px 28px;
-            border: none;
-            border-radius: var(--border-radius);
-            background: var(--primary);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .btn-secondary {
-            background: var(--gray);
-        }
-        
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        
-        .btn-accent {
-            background: var(--accent);
-        }
-        
-        .btn-accent:hover {
-            background: #f7a90e;
-        }
-        
-        .view-area {
-            height: 600px;
-            position: relative;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            border: 1px solid #e2e8f0;
-        }
-        
-        #kaggle-frame {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        
-        .loading {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            z-index: 10;
-            transition: var(--transition);
-        }
-        
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 5px solid rgba(32, 190, 255, 0.2);
-            border-top: 5px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .error-message {
-            display: none;
-            padding: 20px;
-            background: #ffebee;
-            color: #c62828;
-            border-radius: var(--border-radius);
-            margin: 20px 0;
-            text-align: center;
-            border-left: 4px solid var(--danger);
-        }
-        
-        .features {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 1px;
+            padding: 20px;
+            background-color: #2a2d37;
         }
         
-        .feature-card {
-            background: white;
-            padding: 30px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            transition: var(--transition);
-            text-align: center;
-            border-top: 5px solid var(--primary);
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-        
-        .feature-icon {
-            width: 70px;
-            height: 70px;
-            background: rgba(32, 190, 255, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 28px;
-            color: var(--primary);
-        }
-        
-        .feature-card h3 {
+        button {
+            border: none;
+            outline: none;
+            padding: 20px;
             font-size: 1.5rem;
-            margin-bottom: 15px;
-            color: var(--dark);
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 10px;
+            margin: 5px;
         }
         
-        .feature-card p {
-            color: var(--gray);
-            line-height: 1.6;
+        .number {
+            background-color: #2c303a;
+            color: white;
         }
         
-        footer {
-            text-align: center;
-            padding: 30px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
+        .number:hover {
+            background-color: #363a46;
         }
         
-        .status-bar {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px 20px;
-            background: #f8f9fa;
-            border-top: 1px solid #e2e8f0;
+        .operator {
+            background-color: #4b5efc;
+            color: white;
         }
         
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
+        .operator:hover {
+            background-color: #3b4ef0;
         }
         
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--success);
+        .equals {
+            background-color: #fe5e7b;
+            color: white;
+            grid-column: span 2;
         }
         
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.2rem;
-            }
-            
-            .url-input-container {
-                flex-direction: column;
-            }
-            
-            .url-input {
-                min-width: 100%;
-            }
-            
-            .buttons {
-                width: 100%;
-            }
-            
-            .btn {
-                flex: 1;
-                justify-content: center;
-            }
-            
-            .view-area {
-                height: 400px;
-            }
+        .equals:hover {
+            background-color: #ff4c6d;
+        }
+        
+        .clear {
+            background-color: #fe5e7b;
+            color: white;
+        }
+        
+        .clear:hover {
+            background-color: #ff4c6d;
+        }
+        
+        .decimal {
+            background-color: #2c303a;
+            color: white;
+        }
+        
+        .decimal:hover {
+            background-color: #363a46;
+        }
+        
+        button:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-project-diagram"></i>
-                </div>
-                <h1>Kaggle镜像访问</h1>
-            </div>
-            <p class="subtitle">解决Kaggle样式加载问题，提供更稳定的访问体验</p>
-        </header>
-        
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-rocket"></i>
-                <h2>快速访问Kaggle</h2>
-            </div>
-            <div class="card-body">
-                <div class="url-input-container">
-                    <div class="url-input">
-                        <i class="fas fa-link"></i>
-                        <input type="text" id="kaggle-url" value="https://www.kaggle.com/" placeholder="输入Kaggle网址" />
-                    </div>
-                    <div class="buttons">
-                        <button class="btn" onclick="loadKaggle()">
-                            <i class="fas fa-paper-plane"></i> 访问Kaggle
-                        </button>
-                        <button class="btn btn-secondary" onclick="refreshFrame()">
-                            <i class="fas fa-sync-alt"></i> 刷新
-                        </button>
-                        <button class="btn btn-accent" onclick="openOriginal()">
-                            <i class="fas fa-external-link-alt"></i> 原站访问
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="error-message" id="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <h3>加载失败</h3>
-                    <p>无法加载请求的页面，请检查网络连接或尝试刷新页面。</p>
-                </div>
-                
-                <div class="view-area">
-                    <div class="loading" id="loading">
-                        <div class="spinner"></div>
-                        <p>正在加载Kaggle内容，请稍候...</p>
-                    </div>
-                    <iframe id="kaggle-frame" src="about:blank"></iframe>
-                </div>
-                
-                <div class="status-bar">
-                    <div class="status-indicator">
-                        <div class="status-dot"></div>
-                        <span>连接状态: 正常</span>
-                    </div>
-                    <div class="status-indicator">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>安全连接: 已启用</span>
-                    </div>
-                </div>
-            </div>
+    <div class="calculator">
+        <div class="display">0</div>
+        <div class="buttons">
+            <button class="clear">C</button>
+            <button class="operator">/</button>
+            <button class="operator">*</button>
+            <button class="operator">-</button>
+            
+            <button class="number">7</button>
+            <button class="number">8</button>
+            <button class="number">9</button>
+            <button class="operator">+</button>
+            
+            <button class="number">4</button>
+            <button class="number">5</button>
+            <button class="number">6</button>
+            <button class="operator">%</button>
+            
+            <button class="number">1</button>
+            <button class="number">2</button>
+            <button class="number">3</button>
+            <button class="equals">=</button>
+            
+            <button class="number">0</button>
+            <button class="decimal">.</button>
         </div>
-        
-        <div class="features">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-bolt"></i>
-                </div>
-                <h3>解决方案说明</h3>
-                <p>通过代理和镜像技术解决Kaggle样式加载问题，提供更稳定的访问体验，避免CSS和JS加载失败。</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-lightbulb"></i>
-                </div>
-                <h3>使用说明</h3>
-                <p>1. 在输入框中输入或粘贴Kaggle网址<br>2. 点击"访问Kaggle"按钮<br>3. 等待内容加载完成</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-info-circle"></i>
-                </div>
-                <h3>注意事项</h3>
-                <p>某些功能可能需要直接访问Kaggle，登录功能可能受限。如果加载失败，请尝试刷新页面或使用原站访问。</p>
-            </div>
-        </div>
-        
-        <footer>
-            <p>© 2023 Kaggle镜像访问页面 - 本页面仅提供技术参考，Kaggle是Kaggle Inc.的注册商标</p>
-        </footer>
     </div>
 
     <script>
-        // 设置默认URL
-        document.getElementById('kaggle-url').value = 'https://www.kaggle.com/';
-        
-        // 加载Kaggle网站
-        function loadKaggle() {
-            const url = document.getElementById('kaggle-url').value;
-            if (!url) return;
+        document.addEventListener('DOMContentLoaded', function() {
+            const display = document.querySelector('.display');
+            const buttons = document.querySelectorAll('button');
+            let currentInput = '0';
+            let previousInput = '';
+            let operation = null;
+            let resetScreen = false;
             
-            showLoading();
-            document.getElementById('error-message').style.display = 'none';
-            
-            // 添加https前缀如果不存在
-            let finalUrl = url;
-            if (!finalUrl.startsWith('http')) {
-                finalUrl = 'https://' + finalUrl;
+            // 更新显示屏
+            function updateDisplay() {
+                display.textContent = currentInput;
             }
             
-            // 确保是kaggle域名
-            if (!finalUrl.includes('kaggle.com')) {
-                finalUrl = 'https://www.kaggle.com/' + finalUrl;
+            // 重置计算器
+            function resetCalculator() {
+                currentInput = '0';
+                previousInput = '';
+                operation = null;
+                resetScreen = false;
+                updateDisplay();
             }
             
-            document.getElementById('kaggle-frame').src = finalUrl;
-        }
-        
-        // 刷新iframe
-        function refreshFrame() {
-            showLoading();
-            const frame = document.getElementById('kaggle-frame');
-            frame.src = frame.src;
-        }
-        
-        // 打开原站
-        function openOriginal() {
-            const url = document.getElementById('kaggle-url').value;
-            if (!url) return;
-            
-            let finalUrl = url;
-            if (!finalUrl.startsWith('http')) {
-                finalUrl = 'https://' + finalUrl;
-            }
-            
-            if (!finalUrl.includes('kaggle.com')) {
-                finalUrl = 'https://www.kaggle.com/' + finalUrl;
-            }
-            
-            window.open(finalUrl, '_blank');
-        }
-        
-        // 显示加载中
-        function showLoading() {
-            document.getElementById('loading').style.display = 'flex';
-            setTimeout(() => {
-                if (document.getElementById('loading').style.display === 'flex') {
-                    document.getElementById('error-message').style.display = 'block';
-                    document.getElementById('loading').style.display = 'none';
+            // 添加数字
+            function appendNumber(number) {
+                if (currentInput === '0' || resetScreen) {
+                    currentInput = number;
+                    resetScreen = false;
+                } else {
+                    currentInput += number;
                 }
-            }, 10000);
-        }
-        
-        // 隐藏加载中
-        function hideLoading() {
-            document.getElementById('loading').style.display = 'none';
-        }
-        
-        // 支持按Enter键提交
-        document.getElementById('kaggle-url').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                loadKaggle();
+                updateDisplay();
             }
+            
+            // 添加小数点
+            function appendDecimal() {
+                if (resetScreen) {
+                    currentInput = '0.';
+                    resetScreen = false;
+                } else if (!currentInput.includes('.')) {
+                    currentInput += '.';
+                }
+                updateDisplay();
+            }
+            
+            // 选择操作符
+            function chooseOperation(op) {
+                if (operation !== null) calculate();
+                previousInput = currentInput;
+                operation = op;
+                resetScreen = true;
+            }
+            
+            // 执行计算
+            function calculate() {
+                let computation;
+                const prev = parseFloat(previousInput);
+                const current = parseFloat(currentInput);
+                
+                if (isNaN(prev) || isNaN(current)) return;
+                
+                switch (operation) {
+                    case '+':
+                        computation = prev + current;
+                        break;
+                    case '-':
+                        computation = prev - current;
+                        break;
+                    case '*':
+                        computation = prev * current;
+                        break;
+                    case '/':
+                        if (current === 0) {
+                            computation = '错误';
+                        } else {
+                            computation = prev / current;
+                        }
+                        break;
+                    case '%':
+                        computation = prev % current;
+                        break;
+                    default:
+                        return;
+                }
+                
+                currentInput = computation.toString();
+                operation = null;
+                previousInput = '';
+                resetScreen = true;
+                updateDisplay();
+            }
+            
+            // 添加按钮事件监听器
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    if (button.classList.contains('number')) {
+                        appendNumber(button.textContent);
+                    } else if (button.classList.contains('decimal')) {
+                        appendDecimal();
+                    } else if (button.classList.contains('operator')) {
+                        chooseOperation(button.textContent);
+                    } else if (button.classList.contains('equals')) {
+                        calculate();
+                    } else if (button.classList.contains('clear')) {
+                        resetCalculator();
+                    }
+                });
+            });
+            
+            // 初始化显示
+            updateDisplay();
         });
-        
-        // 初始化加载
-        window.onload = function() {
-            loadKaggle();
-            
-            // 监听iframe加载完成
-            document.getElementById('kaggle-frame').onload = function() {
-                hideLoading();
-            };
-            
-            // 监听iframe加载错误
-            document.getElementById('kaggle-frame').onerror = function() {
-                document.getElementById('error-message').style.display = 'block';
-                hideLoading();
-            };
-        };
     </script>
 </body>
 </html>

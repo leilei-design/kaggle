@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaggle镜像访问</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        header {
+            background: #20beff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .logo h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .logo-icon {
+            font-size: 2.8rem;
+        }
+        
+        .controls {
+            display: flex;
+            padding: 20px;
+            background: #f5f7fa;
+            border-bottom: 1px solid #ddd;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .url-input {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .url-input input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .url-input input:focus {
+            border-color: #20beff;
+            outline: none;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #20beff;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background: #1899d6;
+            transform: translateY(-2px);
+        }
+        
+        button.secondary {
+            background: #6c757d;
+        }
+        
+        button.secondary:hover {
+            background: #5a6268;
+        }
+        
+        .view-area {
+            height: 600px;
+            position: relative;
+        }
+        
+        #kaggle-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #20beff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            display: none;
+            padding: 20px;
+            background: #ffebee;
+            color: #c62828;
+            border-radius: 8px;
+            margin: 20px;
+            text-align: center;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            color: #20beff;
+            margin-bottom: 15px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #343a40;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .url-input {
+                min-width: 100%;
+            }
+            
+            .buttons {
+                width: 100%;
+            }
+            
+            button {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <h1>Kaggle镜像访问</h1>
+            </div>
+        </header>
+        
+        <div class="controls">
+            <div class="url-input">
+                <input type="text" id="kaggle-url" value="https://www.kaggle.com/" placeholder="输入Kaggle网址" />
+            </div>
+            <div class="buttons">
+                <button id="go-btn" onclick="loadKaggle()">
+                    <span>🚀</span> 访问Kaggle
+                </button>
+                <button id="refresh-btn" onclick="refreshFrame()" class="secondary">
+                    <span>🔄</span> 刷新
+                </button>
+            </div>
+        </div>
+        
+        <div class="error-message" id="error-message">
+            <h3>加载失败</h3>
+            <p>无法加载请求的页面，请检查网络连接或尝试刷新页面。</p>
+        </div>
+        
+        <div class="view-area">
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>正在加载Kaggle内容，请稍候...</p>
+            </div>
+            <iframe id="kaggle-frame" src="https://www.kaggle.com/" onload="hideLoading()"></iframe>
+        </div>
+        
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>解决方案说明</h3>
+                <p>此页面通过iframe加载Kaggle网站，可以解决部分网络环境下的样式加载问题。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚙️</div>
+                <h3>使用说明</h3>
+                <p>1. 在输入框中输入或粘贴Kaggle网址<br>2. 点击"访问Kaggle"按钮<br>3. 等待内容加载完成</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💡</div>
+                <h3>注意事项</h3>
+                <p>某些功能可能需要直接访问Kaggle，登录功能可能受限。如果加载失败，请尝试刷新页面。</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Kaggle镜像访问页面 - 本页面仅提供技术参考</p>
+        </footer>
+    </div>
+
+    <script>
+        // 设置默认URL
+        document.getElementById('kaggle-url').value = 'https://www.kaggle.com/';
+        
+        // 加载Kaggle网站
+        function loadKaggle() {
+            const url = document.getElementById('kaggle-url').value;
+            if (!url) return;
+            
+            showLoading();
+            document.getElementById('error-message').style.display = 'none';
+            
+            // 添加https前缀如果不存在
+            let finalUrl = url;
+            if (!finalUrl.startsWith('http')) {
+                finalUrl = 'https://' + finalUrl;
+            }
+            
+            // 确保是kaggle域名
+            if (!finalUrl.includes('kaggle.com')) {
+                finalUrl = 'https://www.kaggle.com/' + finalUrl;
+            }
+            
+            document.getElementById('kaggle-frame').src = finalUrl;
+        }
+        
+        // 刷新iframe
+        function refreshFrame() {
+            showLoading();
+            const frame = document.getElementById('kaggle-frame');
+            frame.src = frame.src;
+        }
+        
+        // 显示加载中
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+        
+        // 隐藏加载中
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        // 错误处理
+        window.addEventListener('message', function(e) {
+            // 可以处理来自iframe的消息
+        }, false);
+        
+        // 设置超时检测
+        setTimeout(function() {
+            const frame = document.getElementById('kaggle-frame');
+            if (frame.contentWindow.document.readyState === 'complete' && 
+                frame.contentWindow.document.querySelector('body').innerText.includes('Failed')) {
+                document.getElementById('error-message').style.display = 'block';
+            }
+        }, 10000);
+        
+        // 支持按Enter键提交
+        document.getElementById('kaggle-url').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loadKaggle();
+            }
+        });
+    </script>
+</body>
+</html>
